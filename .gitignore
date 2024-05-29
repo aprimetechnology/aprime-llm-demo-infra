@@ -32,3 +32,5 @@ terraform.rc
 # pyenv
 .python-version
 
+# output from our cookiecutter template
+selected_values.json
