@@ -40,19 +40,19 @@ fi
 QUOTA_CODE="L-3819A6DF"
 
 QUOTA_JSON=$(aws service-quotas get-service-quota --service-code ec2 --quota-code "$QUOTA_CODE")
-QUOTA=$(echo $QUOTA_JSON | jq -r '.Quota.Value')
-QUOTA_NAME=$(echo $QUOTA_JSON | jq -r '.Quota.QuotaName')
+QUOTA=$(echo "$QUOTA_JSON" | jq -r '.Quota.Value')
+QUOTA_NAME=$(echo "$QUOTA_JSON" | jq -r '.Quota.QuotaName')
 
 # Convert Quota to an int
-CURRENT_QUOTA_INT=$(printf "%.0f" $QUOTA)
+CURRENT_QUOTA_INT=$(printf "%.0f" "$QUOTA")
 
 if ((CURRENT_QUOTA_INT < 8)); then
     echo "Quota ($QUOTA_NAME) isn't at least 10: $CURRENT_QUOTA_INT"
-    read -p "We need this amount to run the LLM, would you like us to request an increase in your quota? (yes/no): " user_input
+    read -rp "We need this amount to run the LLM, would you like us to request an increase in your quota? (yes/no): " user_input
 
     if [[ "$user_input" != "yes" ]]; then
         echo "Not requesting increase, feel free to run this on your own:"
-        echo "aws service-quotas request-service-quota-increase --service-code ec2 --quota-code "$QUOTA_CODE" --desired-value 8"
+        echo "aws service-quotas request-service-quota-increase --service-code ec2 --quota-code $QUOTA_CODE --desired-value 8"
         exit 1
     fi
     echo "Requesting increase..."
@@ -79,15 +79,17 @@ if [[ -n "$s3_bucket" && "$s3_bucket" != "null" ]]; then
         echo "Bucket $s3_bucket" already exists
     else
         echo "Bucket $s3_bucket doesn't appear to exist, attempting to create it"
-        aws s3api create-bucket --bucket "$s3_bucket" --region "$aws_region" --create-bucket-configuration LocationConstraint="$aws_region" --no-cli-pager
-        if [ $? -eq 0 ]; then
+        if aws s3api create-bucket --bucket "$s3_bucket" --region "$aws_region" --create-bucket-configuration LocationConstraint="$aws_region" --no-cli-pager; then
             echo "Bucket $s3_bucket created successfully."
             echo "$s3_bucket" >created_bucket.txt
+        else
+            echo "Failed to create $s3_bucket"
+            exit 1
         fi
     fi
 fi
 
-cd $project_slug
+cd "$project_slug" || exit
 
 echo "Running: terraform init"
 terraform init

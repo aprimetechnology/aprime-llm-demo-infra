@@ -12,15 +12,15 @@ project_slug=$(jq -r '.project_slug' 'selected_values.json')
 aws_region=$(aws configure get region)
 
 echo "Going to cleanup terraform in the $project_slug directory"
-cd $project_slug
+cd "$project_slug" || exit
 terraform destroy
 
-cd ..
+cd .. || exit
 
 # Check if we created the S3 bucket for them
 if [[ -f "$CREATED_BUCKET_FILE" ]]; then
     CREATED_BUCKET_NAME=$(cat "$CREATED_BUCKET_FILE")
-    read -p "Delete $CREATED_BUCKET_NAME that we created? (yes/no): " user_input
+    read -rp "Delete $CREATED_BUCKET_NAME that we created? (yes/no): " user_input
     if [[ "$user_input" == "yes" ]]; then
         # Deleting contents of the bucket
         aws s3 rm s3://"$CREATED_BUCKET_NAME" --recursive
