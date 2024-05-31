@@ -32,5 +32,6 @@ terraform.rc
 # pyenv
 .python-version
 
-# output from our cookiecutter template
+# output from cookiecutter + our quickstart script
 selected_values.json
+created_bucket.txt

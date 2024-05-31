@@ -110,6 +110,7 @@ for ((i = 1; i <= MAX_ATTEMPTS; i++)); do
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $URL)
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "$URL IS UP!"
+				break
     fi
     sleep $INTERVAL
 done
