@@ -8,7 +8,9 @@
   "text_generation_inference_discovery_name": "text-generation-inference",
 	"text_generation_inference_port": 11434,
   "nginx_port": 80,
+	"s3_bucket": "",
 	"__prompts__": {
-		"availability_zones": "Availability zones you want to use as a comma-separated list, uses all AZs in the region if left blank."
+		"availability_zones": "Availability zones you want to use as a comma-separated list, uses all AZs in the region if left blank.",
+		"s3_bucket": "Enter the name of an S3 bucket you want to store your terraform state in (we will create it if it doesn't exist). If empty, terraform will store state locally."
 	}
 }

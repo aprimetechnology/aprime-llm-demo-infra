@@ -58,7 +58,7 @@ if (( CURRENT_QUOTA_INT < 8)); then
 				exit 1
 		fi
 		echo "Requesting increase..."
-		aws service-quotas request-service-quota-increase --service-code ec2 --quota-code "$QUOTA_CODE" --desired-value 8
+		aws service-quotas request-service-quota-increase --service-code ec2 --quota-code "$QUOTA_CODE" --desired-value 8 --no-cli-pager
 		echo "You can check on the status of your quota request here: https://$aws_region.console.aws.amazon.com/servicequotas/home/requests"
 		echo
 		echo "Going ahead with standing up LLM, the EC2 instances won't spin up until the quota increase is approved."
@@ -70,6 +70,24 @@ pipenv run cookiecutter .
 # Get slug where the project was created
 project_slug=$(jq -r '.project_slug' 'selected_values.json')
 echo "Created terraform files in new directory: ${project_slug}"
+
+s3_bucket=$(jq -r '.s3_bucket' 'selected_values.json')
+
+# If a user specified a bucket, check if it exists and create it
+# if it doesn't.
+if [[ -n "$s3_bucket" && "$s3_bucket" != "null" ]]; then
+		echo "Checking if bucket ($s3_bucket) exists..."
+		if aws s3api head-bucket --bucket "$s3_bucket" --no-cli-pager 2>/dev/null; then
+				echo "Bucket $s3_bucket" already exists
+		else
+				echo "Bucket $s3_bucket doesn't appear to exist, attempting to create it"
+				aws s3api create-bucket --bucket "$s3_bucket" --region "$aws_region" --create-bucket-configuration LocationConstraint="$aws_region" --no-cli-pager
+				if [ $? -eq 0 ]; then
+    			echo "Bucket $s3_bucket created successfully."
+					echo "$s3_bucket" > created_bucket.txt
+				fi
+		fi
+fi
 
 cd $project_slug
 
