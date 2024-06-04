@@ -27,5 +27,8 @@ if [[ -f "$CREATED_BUCKET_FILE" ]]; then
         aws s3api delete-bucket --bucket "$CREATED_BUCKET_NAME" --region "$aws_region"
 
         echo "Successfully deleted: $CREATED_BUCKET_NAME"
+        rm created_bucket.txt
     fi
 fi
+
+rm selected_values.json

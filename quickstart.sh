@@ -62,12 +62,34 @@ if ((CURRENT_QUOTA_INT < 8)); then
     echo "Going ahead with standing up LLM, the EC2 instances won't spin up until the quota increase is approved."
 fi
 
+# Check that you have a domain
+domains=$(aws route53domains list-domains --region us-east-1)
+num_domains=$(echo "$domains" | jq '.Domains | length')
+
+if [[ $num_domains -eq 0 ]]; then
+    echo "No domains are registered which you will need for the UI."
+    echo "Please register one at: https://us-east-1.console.aws.amazon.com/route53/domains/home"
+else
+    echo "Domains available:"
+    echo "$domains" | jq '.Domains[].DomainName'
+fi
+
 echo "Running: pipenv run cookiecutter ."
 pipenv run cookiecutter .
 
 # Get slug where the project was created
 project_slug=$(jq -r '.project_slug' 'selected_values.json')
 echo "Created terraform files in new directory: ${project_slug}"
+
+# Ensure there's a hosted zone for the domain
+selected_domain=$(jq -r '.domain' 'selected_values.json')
+hosted_zone=$(aws route53 list-hosted-zones | jq --arg name "$selected_domain." '.HostedZones[] | select(.Name == $name) | .Id')
+
+if [[ -z "$hosted_zone" ]]; then
+    echo "No hosted zone exists for $selected_domain."
+    echo "Please create one up at: https://us-east-1.console.aws.amazon.com/route53/v2/hostedzones"
+    exit 1
+fi
 
 s3_bucket=$(jq -r '.s3_bucket' 'selected_values.json')
 
@@ -97,9 +119,9 @@ terraform init
 echo "Running: terraform apply"
 terraform apply
 
-echo "Don't forget to run the following when you are done from within the ${project_slug} directory: terraform destroy"
+echo "Don't forget to run the following when you are done: ./cleanup.sh"
 
-URL="https://inference-tgi-open-webui.aprime.click"
+URL="https://inference-tgi-open-webui.$selected_domain"
 echo "Checking UI ($URL) is up!"
 
 TIMEOUT=$((10 * 60))
@@ -107,10 +129,10 @@ INTERVAL=30
 MAX_ATTEMPTS=$((TIMEOUT / INTERVAL))
 
 for ((i = 1; i <= MAX_ATTEMPTS; i++)); do
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
-        echo "$URL IS UP!"
-				break
+        echo "$URL is up!"
+        break
     fi
     sleep $INTERVAL
 done
