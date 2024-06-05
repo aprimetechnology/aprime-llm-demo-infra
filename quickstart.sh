@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 ## Check necessary binaries are installed
 commands=("aws" "python3.11" "pipenv" "terraform" "jq")
 
@@ -74,18 +74,21 @@ else
     echo "$domains" | jq '.Domains[].DomainName'
 fi
 
-echo "Running: pipenv run cookiecutter ."
-pipenv run cookiecutter .
+# Only run cookiecutter on the first time
+if [[ ! -f "selected_values.json" ]]; then
+    echo "Running: pipenv run cookiecutter ."
+    pipenv run cookiecutter .
+fi
 
 # Get slug where the project was created
 project_slug=$(jq -r '.project_slug' 'selected_values.json')
-echo "Created terraform files in new directory: ${project_slug}"
+echo "Terraform files are in new directory: ${project_slug}"
 
 # Ensure there's a hosted zone for the domain
 selected_domain=$(jq -r '.domain' 'selected_values.json')
 hosted_zone=$(aws route53 list-hosted-zones | jq --arg name "$selected_domain." '.HostedZones[] | select(.Name == $name) | .Id')
 
-if [[ -z "$hosted_zone" ]]; then
+if [[ $selected_domain && -z "$hosted_zone" ]]; then
     echo "No hosted zone exists for $selected_domain."
     echo "Please create one up at: https://us-east-1.console.aws.amazon.com/route53/v2/hostedzones"
     exit 1
@@ -121,7 +124,18 @@ terraform apply
 
 echo "Don't forget to run the following when you are done: ./cleanup.sh"
 
-URL="https://inference-tgi-open-webui.$selected_domain"
+# Get the URL
+alb_dns_name=$(terraform output -raw alb_dns_name)
+ui_url=$(terraform output -raw ui_url)
+
+URL=""
+if [[ -n "$tf_ui_url" ]]; then
+    URL="https://$ui_url"
+else
+    URL="http://$alb_dns_name"
+    echo "Since you aren't using a domain, there is no HTTPS. Add a domain (which includes HTTPS) prior to using in production."
+fi
+
 echo "Checking UI ($URL) is up!"
 
 TIMEOUT=$((10 * 60))

@@ -35,7 +35,7 @@ locals {
 ##############################################################
 
 module "text_generation_inference" {
-  source = "git@github.com:aprimetechnology/terraform-text-generation-inference-aws.git?ref=0.0.1"
+  source = "git@github.com:aprimetechnology/terraform-text-generation-inference-aws.git?ref=af26714e6390462799700dc166f2770750e7c032"
 
   name = "${local.name}-tgi"
 
@@ -82,9 +82,13 @@ module "text_generation_inference" {
   # ACM
   create_certificate = false
 
-  # route 53
+  # Open WebUI
+  use_ssl_ui = {{ "true" if cookiecutter.domain else "false" }}
+
+  {%- if cookiecutter.domain %}
   route53_zone_id   = data.aws_route53_zone.this.zone_id
   route53_zone_name = data.aws_route53_zone.this.name
+  {%- endif %}
 
   # EFS
   enable_efs = true
@@ -98,10 +102,6 @@ module "text_generation_inference" {
 
   tags = local.tags
 }
-
-##############################################################
-# Open WebUI
-##############################################################
 
 
 ################################################################################
@@ -128,10 +128,11 @@ module "vpc" {
 ##############################################################
 # Route53
 ##############################################################
-
+{%- if cookiecutter.domain %}
 data "aws_route53_zone" "this" {
   name = local.domain
 }
+{%- endif %}
 
 ##############################################################
 # Service Discovery

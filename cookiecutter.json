@@ -2,7 +2,7 @@
   "project_slug": "demo-llm",
 	"region": "us-east-2",
 	"name": "inference",
-	"domain": "aprime.click",
+	"domain": "",
 	"vpc_cidr": "10.0.0.0/16",
 	"availability_zones": "",
   "text_generation_inference_discovery_name": "text-generation-inference",
