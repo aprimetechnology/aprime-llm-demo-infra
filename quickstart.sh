@@ -121,19 +121,19 @@ terraform init
 
 echo "Running: terraform apply"
 terraform apply
-
-echo "Don't forget to run the following when you are done: ./cleanup.sh"
+echo
 
 # Get the URL
 alb_dns_name=$(terraform output -raw alb_dns_name)
-ui_url=$(terraform output -raw ui_url)
+tf_ui_url=$(terraform output -raw ui_url)
 
 URL=""
 if [[ -n "$tf_ui_url" ]]; then
-    URL="https://$ui_url"
+    URL="https://$tf_ui_url"
 else
     URL="http://$alb_dns_name"
     echo "Since you aren't using a domain, there is no HTTPS. Add a domain (which includes HTTPS) prior to using in production."
+    echo
 fi
 
 echo "Checking UI ($URL) is up!"
@@ -157,3 +157,5 @@ if [ "$HTTP_STATUS" -ne 200 ]; then
 fi
 
 echo "Go to $URL and sign up for an account. The first email + password you put in will create an admin account!"
+echo
+echo "Don't forget to run the following when you are done: ./cleanup.sh"
