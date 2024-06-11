@@ -10,19 +10,11 @@ locals {
 
   domain = "{{cookiecutter.domain}}"
 
-  vpc_cidr = "{{cookiecutter.vpc_cidr}}"
-	{%- if cookiecutter.availability_zones %}
-	azs = [
-		{%- for az in cookiecutter.availability_zones.split(',') %}
-		"{{ az.strip() }}"{% if not loop.last %},{% endif %}
-		{%- endfor %}
-	]
-	{%- else %}
+  vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
-	{%- endif %}
-  text_generation_inference_discovery_name = "{{cookiecutter.text_generation_inference_discovery_name}}"
-  text_generation_inference_port           = {{cookiecutter.text_generation_inference_port}}
-  nginx_port                               = {{cookiecutter.nginx_port}}
+  text_generation_inference_discovery_name = "text-generation-{{cookiecutter.name}}"
+  text_generation_inference_port           = 11434
+  nginx_port                               = 80
 
   tags = {
     Name    = local.name

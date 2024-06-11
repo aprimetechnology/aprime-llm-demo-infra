@@ -3,14 +3,12 @@
 	"region": "us-east-2",
 	"name": "inference",
 	"domain": "",
-	"vpc_cidr": "10.0.0.0/16",
-	"availability_zones": "",
-  "text_generation_inference_discovery_name": "text-generation-inference",
-	"text_generation_inference_port": 11434,
-  "nginx_port": 80,
 	"s3_bucket": "",
 	"__prompts__": {
-		"availability_zones": "Availability zones you want to use as a comma-separated list, uses all AZs in the region if left blank.",
-		"s3_bucket": "Enter the name of an S3 bucket you want to store your terraform state in (we will create it if it doesn't exist). If empty, terraform will store state locally."
+		"project_slug": "This is the name of the directory the terraform files will be created in",
+		"s3_bucket": "Enter the name of an S3 bucket you want to store your terraform state in (we will create it if it doesn't exist). If empty, terraform will store state locally.",
+		"name": "The name used when creating components like the VPC, LLM, UI, etc.",
+		"domain": "The domain you wish to use. We'll create a subdomain for the UI. If empty, no domain will be created and you can access the UI by hitting the ALB over HTTP. (Not recommended for production)",
+		"s3_bucket": "The S3 bucket to store your terraform state in. Will try to create the bucket if it doesn't exist. Will store state locally if no bucket is selected."
 	}
 }
