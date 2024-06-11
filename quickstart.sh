@@ -9,6 +9,7 @@ for cmd in "${commands[@]}"; do
         exit 1
     fi
 done
+echo "All required binaries are installed!"
 
 # Get the aws configuration
 aws_config=$(aws configure list)
@@ -36,6 +37,8 @@ if [ -n "$missing_config" ]; then
     exit 1
 fi
 
+echo "AWS cli is configured correctly."
+
 # Checking that you have the necessary instances
 QUOTA_CODE="L-3819A6DF"
 
@@ -60,6 +63,8 @@ if ((CURRENT_QUOTA_INT < 8)); then
     echo "You can check on the status of your quota request here: https://$aws_region.console.aws.amazon.com/servicequotas/home/requests"
     echo
     echo "Going ahead with standing up LLM, the EC2 instances won't spin up until the quota increase is approved."
+else
+    echo "$QUOTA_NAME is at least 8!"
 fi
 
 # Check that you have a domain
@@ -77,6 +82,8 @@ fi
 # Only run cookiecutter on the first time
 if [[ ! -f "selected_values.json" ]]; then
     echo "Running: pipenv run cookiecutter ."
+    echo
+    echo "For each parameter, you can hit return to use the default or enter your own."
     pipenv run cookiecutter .
 fi
 
@@ -136,7 +143,7 @@ else
     echo
 fi
 
-echo "Checking UI ($URL) is up!"
+echo "Waiting for UI ($URL) to be up..."
 
 TIMEOUT=$((10 * 60))
 INTERVAL=30
@@ -145,7 +152,8 @@ MAX_ATTEMPTS=$((TIMEOUT / INTERVAL))
 for ((i = 1; i <= MAX_ATTEMPTS; i++)); do
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
-        echo "$URL is up!"
+				echo "UI is up"
+				echo
         break
     fi
     sleep $INTERVAL
