@@ -56,13 +56,13 @@ if ((CURRENT_QUOTA_INT < 8)); then
     if [[ "$user_input" != "yes" ]]; then
         echo "Not requesting increase, feel free to run this on your own:"
         echo "aws service-quotas request-service-quota-increase --service-code ec2 --quota-code $QUOTA_CODE --desired-value 8"
-        exit 1
+    else
+        echo "Requesting increase..."
+        aws service-quotas request-service-quota-increase --service-code ec2 --quota-code "$QUOTA_CODE" --desired-value 8 --no-cli-pager
+        echo "You can check on the status of your quota request here: https://$aws_region.console.aws.amazon.com/servicequotas/home/requests"
+        echo
+        echo "Going ahead with standing up LLM, the EC2 instances won't spin up until the quota increase is approved."
     fi
-    echo "Requesting increase..."
-    aws service-quotas request-service-quota-increase --service-code ec2 --quota-code "$QUOTA_CODE" --desired-value 8 --no-cli-pager
-    echo "You can check on the status of your quota request here: https://$aws_region.console.aws.amazon.com/servicequotas/home/requests"
-    echo
-    echo "Going ahead with standing up LLM, the EC2 instances won't spin up until the quota increase is approved."
 else
     echo "$QUOTA_NAME is at least 8!"
 fi
@@ -74,9 +74,11 @@ num_domains=$(echo "$domains" | jq '.Domains | length')
 if [[ $num_domains -eq 0 ]]; then
     echo "No domains are registered which you will need for the UI."
     echo "Please register one at: https://us-east-1.console.aws.amazon.com/route53/domains/home"
+    echo
 else
     echo "Domains available:"
     echo "$domains" | jq '.Domains[].DomainName'
+    echo
 fi
 
 # Only run cookiecutter on the first time
@@ -98,6 +100,7 @@ hosted_zone=$(aws route53 list-hosted-zones | jq --arg name "$selected_domain." 
 if [[ $selected_domain && -z "$hosted_zone" ]]; then
     echo "No hosted zone exists for $selected_domain."
     echo "Please create one up at: https://us-east-1.console.aws.amazon.com/route53/v2/hostedzones"
+    echo
     exit 1
 fi
 
@@ -152,8 +155,8 @@ MAX_ATTEMPTS=$((TIMEOUT / INTERVAL))
 for ((i = 1; i <= MAX_ATTEMPTS; i++)); do
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
-				echo "UI is up"
-				echo
+        echo "UI is up"
+        echo
         break
     fi
     sleep $INTERVAL
