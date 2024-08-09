@@ -11,8 +11,9 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 
 # install everything in the Pipfile
-ADD Pipfile .
-ADD Pipfile.lock .
+RUN mkdir -p /aprime-demo
+ADD Pipfile /aprime-demo
+ADD Pipfile.lock /aprime-demo
 RUN pipenv install
 
-CMD ["bash"]
+CMD ["./quickstart.sh"]
