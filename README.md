@@ -9,7 +9,20 @@ A demo repo that uses our module to spin up a private AI Large Language Model (L
 
 
 ## Requirements
-This script requires:
+### Docker route
+The simplest way to run this script is via:
+```
+# launch a Docker container with all required dependencies installed
+$ ./docker-shell.sh
+
+# inside the Docker container's shell prompt, run the quickstart script
+root@0abc1def2345:/demo# ./quickstart.sh
+```
+
+This requires that you have `docker` installed.
+
+### Local route
+To run locally, this script requires:
 - aws account
 - aws cli
 - python3.11
@@ -26,8 +39,9 @@ See more detailed instructions on **[prerequisites](https://www.aprime.com/quick
 We recommend that you request the ability to launch 8 `G and VT Spot Instances` via AWS prior to running the quickstart. *Our quickstart script will help you do this request automatically , but it may take a little bit of time for AWS to grant it.*
 
 To start the setup (*quickstart*) script for the demo LLM, run the following command:
-
-`./quickstart.sh`
+```
+$ ./quickstart.sh
+```
 
 To streamline the deployment process, we recommend using our [open-source Terraform module](https://github.com/aprimetechnology/terraform-text-generation-inference-aws). This will guide you through setting this up.
 
