@@ -40,6 +40,12 @@ We provide a `cleanup.sh` script, which will remove all the things we created, i
 - Everything created by the `terraform apply`
 - The S3 bucket for terraform state storage, if we created it for you.
 
+## Running a shell in the AWS ECS container
+For convenience, we provide the following to use AWS Exec to open a shell in the `text-generation-interface` container:
+```
+$ ./aws-exec.sh
+```
+
 ## Share Your Ideas & Stay Connected
 We are excited to hear about your experience of setting up your own models in AWS, and any feedback or ideas on how we can further improve these tools. Here’s how you can stay connected and contribute to the project:
 

@@ -10,8 +10,8 @@ locals {
 
   domain = "{{cookiecutter.domain}}"
 
-  vpc_cidr = "10.0.0.0/16"
-  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
+  vpc_cidr                                 = "10.0.0.0/16"
+  azs                                      = slice(data.aws_availability_zones.available.names, 0, 3)
   text_generation_inference_discovery_name = "text-generation-{{cookiecutter.name}}"
   text_generation_inference_port           = 11434
   nginx_port                               = 80
@@ -49,6 +49,8 @@ module "text_generation_inference" {
 
   # ECS
   service = {
+    # enable AWS Exec support by default so ECS containers can be Exec'd into
+    enable_execute_command             = true
     deployment_minimum_healthy_percent = 0
     service_connect_configuration = {
       enabled   = true
