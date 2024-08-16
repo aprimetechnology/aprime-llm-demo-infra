@@ -49,6 +49,8 @@ module "text_generation_inference" {
 
   # ECS
   service = {
+    # enable AWS Exec support by default so ECS containers can be Exec'd into
+    enable_execute_command             = true
     deployment_minimum_healthy_percent = 0
     service_connect_configuration = {
       enabled   = true
