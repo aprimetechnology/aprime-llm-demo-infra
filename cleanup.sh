@@ -28,6 +28,9 @@ if [[ -f "$CREATED_BUCKET_FILE" ]]; then
 
         echo "Successfully deleted: $CREATED_BUCKET_NAME"
         rm created_bucket.txt
+    else
+        echo "Not deleting created S3 bucket, feel free to run this on your own:"
+        echo "aws s3api delete-bucket --bucket $CREATED_BUCKET_NAME --region $aws_region"
     fi
 fi
 

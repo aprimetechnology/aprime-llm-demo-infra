@@ -27,7 +27,7 @@ locals {
 ##############################################################
 
 module "text_generation_inference" {
-  source = "git@github.com:aprimetechnology/terraform-text-generation-inference-aws.git?ref=0.0.3"
+  source = "git::github.com/aprimetechnology/terraform-text-generation-inference-aws.git?ref=0.0.3"
 
   name = "${local.name}-tgi"
 
