@@ -10,8 +10,8 @@ locals {
 
   domain = "{{cookiecutter.domain}}"
 
-  vpc_cidr = "10.0.0.0/16"
-  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
+  vpc_cidr                                 = "10.0.0.0/16"
+  azs                                      = slice(data.aws_availability_zones.available.names, 0, 3)
   text_generation_inference_discovery_name = "text-generation-{{cookiecutter.name}}"
   text_generation_inference_port           = 11434
   nginx_port                               = 80
